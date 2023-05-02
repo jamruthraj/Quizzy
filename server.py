@@ -31,6 +31,7 @@ class QuizGame(rpyc.Service):
         return 0
 
     def exposed_check_answer(self, question, answer):
+        print("Hi")
         return 0
 
 
