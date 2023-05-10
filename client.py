@@ -8,8 +8,7 @@ class QuizClient:
         self.score = 0
 
     def start(self):
-        conn = rpyc.connect("SERVER_IP_ADDRESS", 18862)
-        quiz_service = conn.root.QuizService()
+        conn = rpyc.connect("localhost", 12347)
 
         print(f"Welcome {self.name} to the Quiz Game!")
         print("Select a category to start:")
@@ -23,20 +22,20 @@ class QuizClient:
             category = input("Enter your choice: ")
 
         category_map = {'1': 'sports', '2': 'history', '3': 'gk'}
-        questions = quiz_service.get_questions(category_map[category])
+        questions = conn.root.get_questions(category_map[category])
 
         for q in questions:
             print(q)
             answer = input("Your answer: ")
             answer = answer.strip().lower()
-            result = quiz_service.validate_answer(q, answer)
+            result = conn.root.validate_answer(q, answer)
             if result:
                 print("Correct!")
                 self.score += 1
             else:
                 print("Incorrect.")
 
-        winner = quiz_service.get_winner(self.name, self.score)
+        winner = conn.root.get_winner(self.name, self.score)
         print(f"The winner is: {winner}")
 
 
