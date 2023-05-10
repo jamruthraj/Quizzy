@@ -34,7 +34,7 @@ class QuizService(rpyc.Service):
         self.answer = None
 
     # get the question for the given category
-    def get_question(self, category):
+    def exposed_get_question(self, category):
         questions = self.questions[category]
         question = random.choice(list(questions.keys()))
         answer = questions[question]
@@ -44,7 +44,7 @@ class QuizService(rpyc.Service):
         return self.current_question
 
     # validate the answer and add the score
-    def validate_answer(self, answer, name):
+    def exposed_validate_answer(self, answer, name):
         if answer.lower().replace(" ", "") == str(self.answer).lower().replace(" ", ""):
             if name in self.scores:
                 self.scores[name] += 1
@@ -55,7 +55,7 @@ class QuizService(rpyc.Service):
             return False
 
     # get the winner
-    def get_winner(self):
+    def exposed_get_winner(self):
         if len(self.scores) == 0:
             return "No winner yet. All players have quit."
         max_score = max(self.scores.values())
@@ -66,13 +66,9 @@ class QuizService(rpyc.Service):
         else:
             return f"It's a tie between {', '.join(winners)} with a score of {max_score} each."
 
-    # exposed methods
-    exposed_get_question = get_question
-    exposed_validate_answer = validate_answer
-    exposed_get_winner = get_winner
-
 
 if __name__ == "__main__":
     from rpyc.utils.server import ThreadedServer
-    t = ThreadedServer(QuizService, port=18862)
+    t = ThreadedServer(QuizService, port=12347,
+                       protocol_config={"allow_public_attrs": True})
     t.start()
